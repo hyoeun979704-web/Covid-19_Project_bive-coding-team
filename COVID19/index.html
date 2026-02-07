@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2,195일간의 여정, 코로나19 연대기</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+
+<body>
+
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="virus-loader">🦠</div>
+            <h2 class="loading-title">데이터 로딩 중...</h2>
+            <div class="loading-facts">
+                <p id="fact-text" class="fact-text"></p>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">🦠 2,195일간의 여정, 코로나19 연대기</h1>
+            <p class="hero-subtitle">2019년 말부터 현재까지, 인류 역사를 바꾼 결정적 순간들</p>
+        </div>
+    </section>
+
+    <section id="section-globe" class="page-section">
+        <div class="section-inner">
+            <h2 class="section-title">🌍 전 세계 팬데믹 확산 현황</h2>
+            <p class="section-subtitle">실시간 지구본 시각화로 코로나19의 전 세계 확산 과정을 추적합니다</p>
+
+            <div class="globe-layout">
+                <div class="stats-sidebar">
+                    <div class="stat-card-large">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <div class="stat-label">현재 날짜</div>
+                            <div class="stat-value" id="current-date">로딩 중...</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-large">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">경과 일수</div>
+                            <div class="stat-value" id="current-day">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-large highlight">
+                        <div class="stat-icon">🦠</div>
+                        <div class="stat-content">
+                            <div class="stat-label">누적 확진자</div>
+                            <div class="stat-value stat-value-accent" id="total-cases">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-large">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-label">신규 확진자</div>
+                            <div class="stat-value" id="new-cases">0</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-large">
+                        <div class="stat-icon">🌐</div>
+                        <div class="stat-content">
+                            <div class="stat-label">발생 도시</div>
+                            <div class="stat-value" id="affected-cities">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="globe-card">
+                    <div id="globe-container">
+                        <canvas id="globe-canvas"></canvas>
+                    </div>
+
+                    <div class="timeline-control-new">
+                        <div class="timeline-header">
+                            <div class="timeline-info">
+                                <span class="timeline-label">타임라인</span>
+                                <span class="timeline-date" id="current-date-main">2020-01-01</span>
+                            </div>
+                            <div class="control-buttons">
+                                <div class="speed-controls">
+                                    <button class="speed-btn" data-speed="0.5">0.5×</button>
+                                    <button class="speed-btn active" data-speed="1">1×</button>
+                                    <button class="speed-btn" data-speed="2">2×</button>
+                                    <button class="speed-btn" data-speed="4">4×</button>
+                                </div>
+                                <button class="control-btn" id="play-btn">
+                                    <span>▶</span> 재생
+                                </button>
+                            </div>
+                        </div>
+                        <input type="range" class="slider" id="timeline-slider" min="0" max="1000" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-charts" class="page-section">
+        <div class="section-inner">
+            <h2 class="section-title">📊 데이터 분석 및 통계</h2>
+            <p class="section-subtitle">전 세계 확진자 및 사망자 추이를 시계열 데이터로 분석합니다</p>
+
+            <div class="card-grid-2">
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">📉</span>
+                        <div class="metric-card__title">전 세계 확진자 추이</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-global-cases"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">💔</span>
+                        <div class="metric-card__title">전 세계 사망자 추이</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-global-deaths"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">📊 데이터 분석 및 통계</h2>
+            <p class="section-subtitle">주요 국가별 누적 확진 및 변곡점 </p>
+
+            <div class="card-grid-1">
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">🌍</span>
+                        <div class="metric-card__title">주요 국가별 누적 확진 및 변곡점</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-monthly-comparison"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">🧬 변이별 증상 비교 분석</h2>
+            <p class="section-subtitle">델타와 오미크론 변이의 증상 발현율 비교 및 분석</p>
+
+            <div class="card-grid-2">
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">🎯</span>
+                        <div class="metric-card__title">증상 레이더 차트</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-symptoms-radar"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">📊</span>
+                        <div class="metric-card__title">증상 막대 차트</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-symptoms-bar"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">💉 백신 및 진단 검사</h2>
+            <p class="section-subtitle">백신 효능 및 진단 정확도 데이터 시각화</p>
+
+            <div class="card-grid-2">
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">💉</span>
+                        <div class="metric-card__title">백신 예방 효능</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-vaccine"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">🔬</span>
+                        <div class="metric-card__title">진단 검사 정확도</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-diagnosis"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title" style="margin-top: 60px;">🧬 심층 분석 (In-depth Analysis)</h2>
+            <p class="section-subtitle">주요 국가별 팬데믹 확산 추이 분석 및 향후 추가 데이터 시각화</p>
+
+            <div class="card-grid-2">
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">⏳</span>
+                        <div class="metric-card__title">변이별 우세 지속 기간</div>
+                    </div>
+                    <div class="metric-card__body">
+                        <canvas id="chart-variant-timeline"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card__header">
+                        <span class="metric-icon">📉</span>
+                        <div class="metric-card__title">변이별 치명률(CFR) 변화</div>
+                    </div>
+                    <div class="metric-card__body" style="position: relative;">
+                        <canvas id="chart-variant-cfr" style="max-height: 250px;"></canvas>
+
+                        <div class="analysis-box">
+                            <strong>💡 분석 포인트</strong>
+                            <ul style="margin-top: 8px; padding-left: 16px; font-size: 13px; color: #cbd5e1;">
+                                <li style="margin-bottom: 4px;"><strong>델타(0.95%):</strong> 폐렴 등 위중증 위험 높음</li>
+                                <li><strong>오미크론(~0.1%):</strong> 상기도 감염 위주, 치명률 급감</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-structure" class="page-section">
+        <div class="section-inner">
+            <h2 class="section-title">🦠 SARS-CoV-2 바이러스 구조 탐색</h2>
+            <p class="section-subtitle">3D 인터랙티브 모델로 코로나19 바이러스의 구조적 특징을 탐색합니다</p>
+
+            <div class="virus-layout">
+                <div class="virus-card">
+                    <div class="virus-card-header">
+                        <h3>3D 바이러스 모델</h3>
+                        <p>마우스로 드래그하여 회전할 수 있습니다</p>
+                    </div>
+                    <div id="virus-canvas-container"></div>
+
+                    <div class="structure-controls-new">
+                        <button class="struct-btn active" data-part="all">
+                            <span class="struct-dot" style="background: #fff;"></span>
+                            <span>전체</span>
+                        </button>
+                        <button class="struct-btn" data-part="spike">
+                            <span class="struct-dot" style="background: #e91e63;"></span>
+                            <span>스파이크</span>
+                        </button>
+                        <button class="struct-btn" data-part="envelope">
+                            <span class="struct-dot" style="background: #f97316;"></span>
+                            <span>외막(Envelope)</span>
+                        </button>
+                        <button class="struct-btn" data-part="membrane">
+                            <span class="struct-dot" style="background: #8b5cf6;"></span>
+                            <span>막(Membrane)</span>
+                        </button>
+                        <button class="struct-btn" data-part="lipid">
+                            <span class="struct-dot" style="background: #334155;"></span>
+                            <span>지질(Lipid)</span>
+                        </button>
+                    </div>
+
+                    <div id="structure-desc-box" class="structure-desc-box">
+                        <strong id="structure-title" style="color: #cbd5e1;">전체 구조</strong>
+                        <p id="structure-text">
+                            직경 약 100nm의 구형 구조입니다. 버튼을 클릭하여 각 구성 요소의 역할을 확인해보세요.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="virus-info-sidebar">
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <span class="info-icon">🧬</span>
+                            변이 바이러스 선택
+                        </div>
+                        <div class="variant-grid-new"
+                            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                            <button class="variant-btn active" data-variant="original">초기형</button>
+                            <button class="variant-btn" data-variant="alpha">알파</button>
+                            <button class="variant-btn" data-variant="beta">베타</button>
+                            <button class="variant-btn" data-variant="gamma">감마</button>
+                            <button class="variant-btn" data-variant="delta">델타</button>
+                            <button class="variant-btn" data-variant="omicron">오미크론</button>
+                        </div>
+                    </div>
+
+                    <div class="info-card highlight-card">
+                        <h3 id="v-name" class="variant-name">코로나19 (Original)</h3>
+                        <p id="v-desc" class="variant-desc">
+                            2019년 말 우한에서 발견된 원형 바이러스. 전파력과 치명률이 중간 수준이며, 기준 모델로 사용됩니다.
+                        </p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <span class="info-icon">📊</span>
+                            주요 특징 통계
+                        </div>
+                        <div class="stats-grid-new">
+                            <div class="stat-box-new">
+                                <div class="stat-value-new" id="v-spike-count">45</div>
+                                <div class="stat-label-new">스파이크 단백질</div>
+                            </div>
+                            <div class="stat-box-new">
+                                <div class="stat-value-new" id="v-trans">1.0×</div>
+                                <div class="stat-label-new">전파력</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="detail-section">
+                            <div class="detail-title">✨ 바이러스 특성</div>
+                            <ul id="v-char-list" class="feature-list-new"
+                                style="padding-left: 20px; margin: 5px 0; color: #cbd5e1;">
+                            </ul>
+                        </div>
+
+                        <div class="detail-section" style="margin-top: 15px;">
+                            <div class="detail-title">🧪 주요 변이 정보</div>
+                            <div id="v-mutations"
+                                style="color: #94a3b8; font-size: 14px; margin-top: 5px; font-weight: 500;">
+                            </div>
+                        </div>
+
+                        <div class="detail-section" style="margin-top: 15px;">
+                            <div class="detail-title">🔍 구조적 차이점</div>
+                            <div id="v-diff" style="color: #94a3b8; font-size: 14px; margin-top: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tooltip" class="tooltip-new">
+                <div id="tt-title" class="tooltip-title">구성 요소</div>
+                <div id="tt-desc" class="tooltip-desc">설명...</div>
+            </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <h3 class="footer-title">2026년 2월 2일~6일 제작</h3>
+            <p class="footer-subtitle">전 세계 코로나19 누적 통계 (2023년 기준)</p>
+            <p class="footer-description">
+                제작
+                <br>딥다이브 생성10회차-바이브코딩팀
+                <br>김효은, 정유빈, 김대성, 김주희
+                <br>
+                <br>데이터 출처
+                <br>1. WHO COVID-19 dashboard data
+                <br>2. Anti-SARS-CoV-2 Spike RBD Antibody, Mouse IgG1 (AS113) (Omicron Specific)
+                <br>3. Starter: Novel coronavirus (2019-nCoV) e998aa9a-e
+                <br>4. COVID-19 Variants Worldwide Evolution
+                <br>5. google 이미지 검색
+                <br>6. KBS 생로병사의 비밀 210707 방송
+                <br>7. cloude AI
+                <br>8. gemini AI
+            </p>
+            <div class="footer-tech">
+                <span class="tech-badge">Three.js</span>
+                <span class="tech-badge">Chart.js</span>
+                <span class="tech-badge">Papa Parse</span>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
